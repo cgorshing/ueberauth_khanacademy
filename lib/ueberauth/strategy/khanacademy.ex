@@ -27,7 +27,7 @@ defmodule Ueberauth.Strategy.KhanAcademy do
     redirect_url = "https://www.khanacademy.org/api/auth2/authorize?" <> result
 
     conn
-    |> put_session(:khan_academy_request, result)
+    |> put_session(:khanacademy_request, result)
     |> redirect!(redirect_url)
   end
 

@@ -189,10 +189,10 @@ defmodule Ueberauth.Strategy.KhanAcademy.OAuth do
 
   defp check_config_key_exists(config, key) when is_list(config) do
     unless Keyword.has_key?(config, key) do
-      raise "#{inspect (key)} missing from config :ueberauth, Ueberauth.Strategy.Github"
+      raise "#{inspect (key)} missing from config :ueberauth, Ueberauth.Strategy.KhanAcademy"
     end
     config
   end
   defp check_config_key_exists(_, _) do
-    raise "Config :ueberauth, Ueberauth.Strategy.Github is not a keyword list, as expected"  end
+    raise "Config :ueberauth, Ueberauth.Strategy.KhanAcademy is not a keyword list, as expected"  end
 end
