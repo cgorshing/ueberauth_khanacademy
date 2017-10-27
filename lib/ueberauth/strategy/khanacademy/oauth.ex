@@ -127,11 +127,9 @@ defmodule Ueberauth.Strategy.KhanAcademy.OAuth do
     #IO.inspect config
     #IO.inspect opts
 
-    _client_opts = []
+    []
       |> Keyword.merge(config)
       |> Keyword.merge(opts)
-
-    #OAuth2.Client.new(client_opts)
   end
 
   defp put_access_token(config, access_token) do
@@ -144,13 +142,9 @@ defmodule Ueberauth.Strategy.KhanAcademy.OAuth do
   end
 
   def request_token(opts \\ []) do
-    #IO.puts "+++2"
-    #config = config(opts)
-    #IO.puts "+++3"
-    #IO.inspect config
-    #IO.puts "+++4"
+    config = config(opts)
 
-
+    params = [{"oauth_callback", config[:redirect_uri]}]
 
     #Tesla.post("http://posttestserver.com/post.php", query: [dir: "blah"])
     #Tesla.post("http://posttestserver.com/post.php")
@@ -159,11 +153,12 @@ defmodule Ueberauth.Strategy.KhanAcademy.OAuth do
     # => %OAuther.Credentials{consumer_key: "dpf43f3p2l4k3l03",
     # consumer_secret: "kd94hf93k423kf44", method: :hmac_sha1,
     # token: "nnch734d00sl2jdk", token_secret: "pfkkdhi9sl3r4s00"}
-    params = OAuther.sign("post", "https://www.khanacademy.org/api/auth2/request_token", [{"oauth_callback", "http://localhost:4000/auth/khanacademy/callback"}], creds)
-    #query_string = normalize params
+    signed_params = OAuther.sign("post",
+      "https://www.khanacademy.org/api/auth2/request_token",
+      params,
+      creds)
 
-
-    response = Tesla.request(method: :post, body: "", url: "https://www.khanacademy.org/api/auth2/request_token", query: params, headers: [{"content-type", "text/plain"}])
+    response = Tesla.request(method: :post, body: "", url: "https://www.khanacademy.org/api/auth2/request_token", query: signed_params, headers: [{"content-type", "text/plain"}])
 
     case response do
       %Tesla.Env{status: 200} ->
