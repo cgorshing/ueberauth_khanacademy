@@ -5,7 +5,7 @@ defmodule UeberauthKhanAcademy.Mixfile do
   Khan Academy strategy for Überauth
   """
 
-  @version "0.0.2"
+  @version "0.0.3"
   @source_url "https://github.com/cgorshing/ueberauth_khanacademy"
 
   def project do
