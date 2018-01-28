@@ -2,7 +2,7 @@ defmodule Ueberauth.Strategy.KhanAcademy do
   require Logger
 
   @moduledoc """
-  Flickr Strategy for Überauth.
+  Khan Academy Strategy for Überauth.
   """
 
   use Ueberauth.Strategy, default_perms: nil
@@ -103,7 +103,7 @@ defmodule Ueberauth.Strategy.KhanAcademy do
   end
 
   @doc """
-  Stores the raw information (including the token) obtained from the Flickr callback
+  Stores the raw information (including the token) obtained from the callback
   """
   def extra(conn) do
     IO.puts "+++ extra(conn)"

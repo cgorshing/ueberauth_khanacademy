@@ -3,32 +3,49 @@ defmodule Ueberauth.Strategy.KhanAcademy.OAuth do
   plug Tesla.Middleware.DebugLogger
 
   @moduledoc """
-  OAuth1 for Flickr.
 
   Add `consumer_key` and `consumer_secret` to your configuration:
 
-  config :ueberauth, Ueberauth.Strategy.Flickr.OAuth,
-    consumer_key: System.get_env("FLICKR_CONSUMER_KEY"),
-    consumer_secret: System.get_env("FLICKR_CONSUMER_SECRET"),
-    redirect_uri: System.get_env("FLICKR_REDIRECT_URI")
+  config :ueberauth, Ueberauth.Strategy.Disqus.OAuth,
+    auth_server: System.get_env("KHAN_AUTH_SERVER"),
+    api_server: System.get_env("KHAN_API_SERVER"),
+    consumer_key: System.get_env("KHAN_CONSUMER_KEY"),
+    consumer_secret: System.get_env("KHAN_CONSUMER_SECRET"),
+    redirect_uri: System.get_env("KHAN_REDIRECT_URI")
   """
 
-  def access_token(token, token_secret, oauth_verifier, _opts \\ []) do
-    #config = config(opts)
+  def auth_server(configs) do
+    configs[:auth_server] || "https://www.khanacademy.org"
+  end
+
+  def api_server(configs) do
+    configs[:api_server] || "https://api.khanacademy.org"
+  end
+
+  def consumer_key(configs) do
+    configs[:consumer_key]
+  end
+
+  def consumer_secret(configs) do
+    configs[:consumer_secret]
+  end
+
+  def access_token(token, token_secret, oauth_verifier, opts \\ []) do
+    configs = config(opts)
+
+    IO.puts "-------------------------------------------------------------------------------"
+
+    url = auth_server(configs) <> "/api/auth2/access_token"
 
     #access_endpoint = "/api/auth/access_token"
-    creds = OAuther.credentials(consumer_key: "GZ5p4ytLr7XEbLxG", consumer_secret: "J2wQynLGvN2zzEum", token_secret: token_secret)
-    params = OAuther.sign("post", "https://www.khanacademy.org/api/auth2/access_token", [{"oauth_token", token}, {"oauth_verifier", oauth_verifier}], creds)
+    creds = OAuther.credentials(consumer_key: consumer_key(configs), consumer_secret: consumer_secret(configs), token_secret: token_secret)
+    params = OAuther.sign("post", url, [{"oauth_token", token}, {"oauth_verifier", oauth_verifier}], creds)
 
-    response = Tesla.request(method: :post, body: "", url: "https://www.khanacademy.org/api/auth2/access_token", query: params, headers: [{"content-type", "text/plain"}])
+    response = Tesla.request(method: :post, body: "", url: url, query: params, headers: [{"content-type", "text/plain"}])
     #response = Client.request(method: :post, body: "", url: "https://www.khanacademy.org/api/auth2/access_token", query: params, headers: %{})
 
     #TODO Find a way to parse this better.
     #body: "oauth_token=t4678922844962816&oauth_token_secret=wQGxdQvqmPMmVDNW",
-
-    #IO.puts "+++ okay what does the body look like now?"
-    #IO.inspect response
-    #IO.inspect response.body
 
     case response do
       %Tesla.Env{status: 200} ->
@@ -67,25 +84,20 @@ defmodule Ueberauth.Strategy.KhanAcademy.OAuth do
 
   #The contract provided by ueberauth is the access token, but we have two in a map
   def get_info(tokens, opts \\ []) do
-    #IO.puts "+++ get info"
-    #IO.inspect tokens
-    #IO.puts "+++ opts"
-    #IO.inspect opts
-
     token = tokens["oauth_token"]
     token_secret = tokens["oauth_token_secret"]
 
-    _config =
-      opts
+    configs = opts
       |> config()
       |> put_access_token(tokens)
 
-    api_server = "https://api.khanacademy.org"
     access_endpoint = "/api/v1/user"
-    creds = OAuther.credentials(consumer_key: "GZ5p4ytLr7XEbLxG",
-      consumer_secret: "J2wQynLGvN2zzEum",
+    url = api_server(configs) <> access_endpoint
+
+    creds = OAuther.credentials(consumer_key: consumer_key(configs),
+      consumer_secret: consumer_secret(configs),
       token_secret: token_secret)
-    params = OAuther.sign("get", api_server <> access_endpoint,
+    params = OAuther.sign("get", url,
       [{"oauth_token", token}],
       creds)
 
@@ -95,11 +107,7 @@ defmodule Ueberauth.Strategy.KhanAcademy.OAuth do
       #query: params,
       #headers: [{"content-type", "text/plain"}])
 
-    response = Tesla.get(api_server <> access_endpoint, query: params, headers: [{"content-type", "text/plain"}])
-
-    #IO.puts "++++ Response from Khan for /api/v1/user"
-    #IO.inspect response
-    #IO.puts response.body
+    response = Tesla.get(url, query: params, headers: [{"content-type", "text/plain"}])
 
     case response do
       %Tesla.Env{status: 200} ->
@@ -115,17 +123,10 @@ defmodule Ueberauth.Strategy.KhanAcademy.OAuth do
   end
 
   defp config(opts) do
-    IO.puts "+++ config(opts)"
-
-    config =
-    :ueberauth
+    config = :ueberauth
     |> Application.fetch_env!(Ueberauth.Strategy.KhanAcademy.OAuth)
-    |> check_config_key_exists(:client_id)
-    |> check_config_key_exists(:client_secret)
-
-    #IO.inspect "+++ opts"
-    #IO.inspect config
-    #IO.inspect opts
+    |> check_config_key_exists(:consumer_key)
+    |> check_config_key_exists(:consumer_secret)
 
     []
       |> Keyword.merge(config)
@@ -142,23 +143,25 @@ defmodule Ueberauth.Strategy.KhanAcademy.OAuth do
   end
 
   def request_token(opts \\ []) do
-    config = config(opts)
+    configs = config(opts)
 
-    params = [{"oauth_callback", config[:redirect_uri]}]
+    params = [{"oauth_callback", configs[:redirect_uri]}]
 
     #Tesla.post("http://posttestserver.com/post.php", query: [dir: "blah"])
     #Tesla.post("http://posttestserver.com/post.php")
 
-    creds = OAuther.credentials(consumer_key: "GZ5p4ytLr7XEbLxG", consumer_secret: "J2wQynLGvN2zzEum")
+    creds = OAuther.credentials(consumer_key: consumer_key(configs), consumer_secret: consumer_secret(configs))
     # => %OAuther.Credentials{consumer_key: "dpf43f3p2l4k3l03",
     # consumer_secret: "kd94hf93k423kf44", method: :hmac_sha1,
     # token: "nnch734d00sl2jdk", token_secret: "pfkkdhi9sl3r4s00"}
+    url = auth_server(configs) <> "/api/auth2/request_token"
+
     signed_params = OAuther.sign("post",
-      "https://www.khanacademy.org/api/auth2/request_token",
+      url,
       params,
       creds)
 
-    response = Tesla.request(method: :post, body: "", url: "https://www.khanacademy.org/api/auth2/request_token", query: signed_params, headers: [{"content-type", "text/plain"}])
+    response = Tesla.request(method: :post, body: "", url: url, query: signed_params, headers: [{"content-type", "text/plain"}])
 
     case response do
       %Tesla.Env{status: 200} ->
@@ -189,5 +192,6 @@ defmodule Ueberauth.Strategy.KhanAcademy.OAuth do
     config
   end
   defp check_config_key_exists(_, _) do
-    raise "Config :ueberauth, Ueberauth.Strategy.KhanAcademy is not a keyword list, as expected"  end
+    raise "Config :ueberauth, Ueberauth.Strategy.KhanAcademy is not a keyword list, as expected"
+  end
 end
