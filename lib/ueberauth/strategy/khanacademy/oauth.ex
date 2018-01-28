@@ -2,6 +2,8 @@ defmodule Ueberauth.Strategy.KhanAcademy.OAuth do
   use Tesla
   plug Tesla.Middleware.DebugLogger
 
+  require Logger
+
   @moduledoc """
 
   Add `consumer_key` and `consumer_secret` to your configuration:
@@ -33,11 +35,8 @@ defmodule Ueberauth.Strategy.KhanAcademy.OAuth do
   def access_token(token, token_secret, oauth_verifier, opts \\ []) do
     configs = config(opts)
 
-    IO.puts "-------------------------------------------------------------------------------"
-
     url = auth_server(configs) <> "/api/auth2/access_token"
 
-    #access_endpoint = "/api/auth/access_token"
     creds = OAuther.credentials(consumer_key: consumer_key(configs), consumer_secret: consumer_secret(configs), token_secret: token_secret)
     params = OAuther.sign("post", url, [{"oauth_token", token}, {"oauth_verifier", oauth_verifier}], creds)
 
@@ -77,6 +76,8 @@ defmodule Ueberauth.Strategy.KhanAcademy.OAuth do
 
   def authorize_url!(_token, _params \\ []) do
     raise RuntimeError, "No clue - not sure what to do here"
+    #TODO This logic is in the strategy and I think it belongs in here
+    #Meaning hitting authorize_url
     #token
     #|> KhanAcademy.authorize_url(params)
     #|> KhanAcademy.request!()
@@ -124,9 +125,9 @@ defmodule Ueberauth.Strategy.KhanAcademy.OAuth do
 
   defp config(opts) do
     config = :ueberauth
-    |> Application.fetch_env!(Ueberauth.Strategy.KhanAcademy.OAuth)
-    |> check_config_key_exists(:consumer_key)
-    |> check_config_key_exists(:consumer_secret)
+      |> Application.fetch_env!(Ueberauth.Strategy.KhanAcademy.OAuth)
+      |> check_config_key_exists(:consumer_key)
+      |> check_config_key_exists(:consumer_secret)
 
     []
       |> Keyword.merge(config)
@@ -134,8 +135,7 @@ defmodule Ueberauth.Strategy.KhanAcademy.OAuth do
   end
 
   defp put_access_token(config, access_token) do
-    tokens =
-      access_token
+    tokens = access_token
       |> Map.take([:oauth_token, :oauth_token_secret])
       |> Keyword.new()
 
@@ -143,6 +143,7 @@ defmodule Ueberauth.Strategy.KhanAcademy.OAuth do
   end
 
   def request_token(opts \\ []) do
+
     configs = config(opts)
 
     params = [{"oauth_callback", configs[:redirect_uri]}]
@@ -173,6 +174,7 @@ defmodule Ueberauth.Strategy.KhanAcademy.OAuth do
   end
 
   def request_token!(opts \\ []) do
+
     case request_token(opts) do
       {:ok, token} ->
         token
