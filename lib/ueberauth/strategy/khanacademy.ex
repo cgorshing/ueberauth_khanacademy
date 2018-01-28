@@ -7,7 +7,6 @@ defmodule Ueberauth.Strategy.KhanAcademy do
 
   use Ueberauth.Strategy, default_perms: nil
 
-  alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Credentials
   alias Ueberauth.Auth.Extra
 
@@ -125,9 +124,5 @@ defmodule Ueberauth.Strategy.KhanAcademy do
       {:error, reason} ->
         set_errors!(conn, [error("get_info", reason)])
     end
-  end
-
-  defp option(conn, key) do
-    Keyword.get(options(conn), key, Keyword.get(default_options(), key))
   end
 end
