@@ -31,9 +31,9 @@ defmodule UeberauthKhanAcademy.Mixfile do
 
   defp deps do
     [{:ueberauth, "~> 0.4"},
-     {:oauther, "~> 1.1"},
+     {:oauther, "~> 1.1.1"},
      {:poison, "~> 3.1.0"},
-     {:tesla, "~> 0.9.0"},
+     {:tesla, "~> 0.10.0"},
      {:ex_doc, ">= 0.0.0", only: :dev}
     ]
   end
