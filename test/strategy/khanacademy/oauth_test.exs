@@ -19,9 +19,6 @@ defmodule Ueberauth.Strategy.KhanAcademy.OAuthTest do
         """}
     end
 
-    Application.put_env :ueberauth, OAuth,
-      client_id: "CONSUMER_KEY",
-      client_secret: "CONSUMER_SECRET"
     :ok
   end
 
