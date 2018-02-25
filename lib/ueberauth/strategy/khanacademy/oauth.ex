@@ -125,9 +125,9 @@ defmodule Ueberauth.Strategy.KhanAcademy.OAuth do
 
   defp config(opts) do
     config = :ueberauth
-      |> Application.fetch_env!(Ueberauth.Strategy.KhanAcademy.OAuth)
-      |> check_config_key_exists(:consumer_key)
-      |> check_config_key_exists(:consumer_secret)
+    |> Application.fetch_env!(Ueberauth.Strategy.KhanAcademy.OAuth)
+    |> check_config_key_exists(:consumer_key)
+    |> check_config_key_exists(:consumer_secret)
 
     []
       |> Keyword.merge(config)
