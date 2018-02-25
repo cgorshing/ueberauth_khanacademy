@@ -148,9 +148,6 @@ defmodule Ueberauth.Strategy.KhanAcademy.OAuth do
 
     params = [{"oauth_callback", configs[:redirect_uri]}]
 
-    #Tesla.post("http://posttestserver.com/post.php", query: [dir: "blah"])
-    #Tesla.post("http://posttestserver.com/post.php")
-
     creds = OAuther.credentials(consumer_key: consumer_key(configs), consumer_secret: consumer_secret(configs))
     # => %OAuther.Credentials{consumer_key: "dpf43f3p2l4k3l03",
     # consumer_secret: "kd94hf93k423kf44", method: :hmac_sha1,
