@@ -15,7 +15,7 @@ _Note_: Sessions are required for this strategy.
 
     ```elixir
     def deps do
-      [{:ueberauth_khanacademy, "~> 0.0.1"}]
+      [{:ueberauth_khanacademy, "~> 0.0.4"}]
     end
     ```
 
