@@ -8,7 +8,7 @@ defmodule Ueberauth.Strategy.KhanAcademy.OAuth do
 
   Add `consumer_key` and `consumer_secret` to your configuration:
 
-  config :ueberauth, Ueberauth.Strategy.Disqus.OAuth,
+  config :ueberauth, Ueberauth.Strategy.KhanAcademy.OAuth,
     auth_server: System.get_env("KHAN_AUTH_SERVER"),
     api_server: System.get_env("KHAN_API_SERVER"),
     consumer_key: System.get_env("KHAN_CONSUMER_KEY"),
