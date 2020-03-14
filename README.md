@@ -1,3 +1,6 @@
+*Khan Academy removed their API's on January 6, 2020, as such this library has
+stopped working from that time.*
+
 # Überauth Khan Academy
 
 > Khan Academy strategy for Überauth.
